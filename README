@@ -1,0 +1,13 @@
+This is a demo Lambda function that produces events to a Kafka topic, notifying consumers about new files in S3 buckets.
+
+To deploy this, you'll need:
+
+* Apache Kafka cluster. I used Confluent Cloud, deployed on GCP - because hybrid clouds are the most fun.
+* Create a deployment package for lambda - this is a zip that contains the lambda_s3_kafka.py file and all the dependencies. In this case, the dependency is kafka-python, and you can pull it into the zip by running: pip install kafka-python -t /Users/gwen/workspaces/lambda_s3_kafka (your directory is hopefully different).
+* Upload the package to Lambda. I used the GUI. Make sure the handler is lambda_s3_kafka.lambda_handler, that you set the privileges correctly and that you use Python 2.7 (at least thats what I used).
+* You can test that the events arrive with: ccloud -c ccloud-gcp consume -b -t webapp, and you should see something like: "We have new object. In bucket gwen-hub, with key LICENSE.txt"
+
+Notes:
+
+* I used kafka-python rather than the more logical confluent-kafka-python because confluent-kafka-python has a dependency on librdkafka, which is a C library. Creating a deployment package on MacosX and deploying on the Linux that Lambda uses got a bit complex with binaries, so I skipped for now.
+* Note the extra SSL configs. You may or may not need them - depending on the version of your SSL dependency. But I don't control what Lambda is running.
